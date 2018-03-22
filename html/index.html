@@ -20,6 +20,8 @@
         }
 
         function uploadFile() {
+            console.log(document.getElementById('fileToUpload').files[0]);
+
             var fd = new FormData();
             fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
 
@@ -44,7 +46,7 @@
 
         function uploadComplete(evt) {
             /* This event is raised when the server send back a response */
-            alert(evt.target.responseText);
+            console.log(evt.target.responseText);
         }
 
         function uploadFailed(evt) {

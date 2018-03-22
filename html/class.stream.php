@@ -32,6 +32,8 @@ class Stream
 echo $boundary;
 
         if (!strlen($boundary)) {
+            echo "no boundary";
+
             $data = [
                 'post' => $this->parse(),
                 'file' => []
@@ -41,7 +43,7 @@ echo $boundary;
             var_dump($blocks);
 
             $data = $this->blocks($blocks);
-            var_dump($data);
+            var_dump("data", $data);
         }
 
         return $data;
@@ -56,6 +58,8 @@ echo $boundary;
         if(!isset($_SERVER['CONTENT_TYPE'])) {
             return null;
         }
+
+        echo "server content type = " . $_SERVER['CONTENT_TYPE'];
 
         preg_match('/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches);
         return $matches[1];
