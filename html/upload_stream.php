@@ -1,10 +1,12 @@
 <?php
 
-session_start();
+//phpinfo();
 
 //Enable error reporting.
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+
+include_once('class.stream.php');
 
 //Use ini_get to get the value of
 //the file_uploads directive
@@ -32,29 +34,25 @@ if(!is_writable($tempFolder)){
     echo 'The directory "' . $tempFolder . '" is writable. All is good.<br>';
 }
 
-$uploads = '/uploads';
-if (!is_dir($uploads)) {
-    throw new Exception($uploads . ' does not exist!');
-}
-
-var_dump($_FILES);
+//var_dump($_FILES);
 //var_dump($_PUT);
 
-$files = array();
+$data = array();
+
+new stream($data);
+
+$_PUT = $data['post'];
+$_FILES = $data['file'];
+
+var_dump($data);
 
 /* Handle moving the file(s) */
 if (count($_FILES) > 0) {
     foreach($_FILES as $key => $value) {
-        $files[$value['name']] = $value['name'];
-
         if (!is_uploaded_file($value['tmp_name'])) {
-            rename($value['tmp_name'], '/uploads/'.$value['name']);
+            rename($value['tmp_name'], '/path/to/uploads/'.$value['name']);
         } else {
-            move_uploaded_file($value['tmp_name'], '/uploads/'.$value['name']);
+            move_uploaded_file($value['tmp_name'], '/path/to/uploads/'.$value['name']);
         }
     }
 }
-
-$_SESSION['files'] = $files;
-
-echo "Ok";

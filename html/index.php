@@ -47,6 +47,7 @@
         function uploadComplete(evt) {
             /* This event is raised when the server send back a response */
             console.log(evt.target.responseText);
+            window.location.reload();
         }
 
         function uploadFailed(evt) {
@@ -56,10 +57,54 @@
         function uploadCanceled(evt) {
             alert("The upload has been canceled by the user or the browser dropped the connection.");
         }
+
+        function resetFiles() {
+            var http = new XMLHttpRequest();
+            http.open("POST", 'api.php', true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function() {
+                if (http.readyState == 4 && http.status == 200) {
+                    // alert(http.responseText);
+                }
+            };
+
+            http.send(JSON.stringify({method:"reset"}));
+            window.location.reload();
+        }
+
+        function getFileList() {
+            var http = new XMLHttpRequest();
+            http.open("POST", "api.php", true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("files").innerHTML = this.responseText;
+
+                    var json = JSON.parse(this.response);
+                    console.log(json);
+
+                    var testElements = document.getElementsByClassName('hasfiles');
+                    Array.prototype.filter.call(testElements, function(testElement) {
+                        if (json.files.length > 0) {
+                            testElement.classList.remove('hidden');
+                        }
+                    });
+                }
+            };
+
+            http.send(JSON.stringify({method:"getFileList"}));
+        }
     </script>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<form id="form1" enctype="multipart/form-data" method="post" action="upload.php">
+<form id="form1" enctype="multipart/form-data" method="post" action="upload_stream.php">
     <div class="row">
         <label for="fileToUpload">Select a File to Upload</label><br />
         <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();"/>
@@ -72,5 +117,16 @@
     </div>
     <div id="progressNumber"></div>
 </form>
+
+<h1>Files</h1>
+<div id="files"></div>
+<div class="hasfiles hidden">
+    <input type="button" name="reset" value="Reset" onclick="resetFiles()" />
+</div>
+
+<script>
+    getFileList();
+</script>
+
 </body>
 </html>
