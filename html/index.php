@@ -85,6 +85,20 @@
                     var json = JSON.parse(this.response);
                     console.log(json);
 
+                    var result = "<ul>";
+                    json.files.forEach(function(element) {
+                       console.log(element);
+                       result +=
+                           "<li>" +
+                           element.name +
+                           "<a href='/api/download/" +
+                           element.filename +
+                           "'> (download)</a>"
+                           + "</li>";
+                    });
+                    result += "</ul>";
+                    document.getElementById("files").innerHTML = result;
+
                     var testElements = document.getElementsByClassName('hasfiles');
                     Array.prototype.filter.call(testElements, function(testElement) {
                         if (json.files.length > 0) {
@@ -95,6 +109,12 @@
             };
 
             http.send(JSON.stringify({method:"getFileList"}));
+        }
+
+        function downloadFile(evt, filename) {
+            evt.preventDefault();
+
+            console.log(filename);
         }
     </script>
     <style>
