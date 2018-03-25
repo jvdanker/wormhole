@@ -40,18 +40,26 @@ if (!is_dir($uploads)) {
 var_dump($_FILES);
 //var_dump($_PUT);
 
+header('Content-Type: text/plain; charset=utf-8');
+
 $files = array();
 
 /* Handle moving the file(s) */
 if (count($_FILES) > 0) {
     foreach($_FILES as $key => $value) {
-        $files[$value['name']] = $value['name'];
+        $tmpName = $value['tmp_name'];
+        $newName = sha1_file($tmpName);
 
-        if (!is_uploaded_file($value['tmp_name'])) {
-            rename($value['tmp_name'], '/uploads/'.$value['name']);
+        if (!is_uploaded_file($tmpName)) {
+            rename($value['tmp_name'], sprintf('/uploads/%s', $newName));
         } else {
-            move_uploaded_file($value['tmp_name'], '/uploads/'.$value['name']);
+            move_uploaded_file($tmpName, sprintf('/uploads/%s', $newName));
         }
+
+        $files[] = array(
+            'name' => $value['name'],
+            'filename' => $newName
+        );
     }
 }
 

@@ -18,8 +18,6 @@ if ($method === 'getFileList') {
     $files = $_SESSION['files'];
     if (!isset($files)) {
         $files = array();
-    } else {
-        $files = array($files);
     }
 
     $response = array(
