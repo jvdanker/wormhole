@@ -38,6 +38,10 @@ if ($method === 'reset') {
     return;
 }
 
+function filterJson($item) {
+    return !preg_match("/^.*\.json$/i", $item);
+}
+
 if ($method === 'getFileList') {
     session_start();
 
@@ -46,9 +50,40 @@ if ($method === 'getFileList') {
         return http_response_code(403);
     }
 
+    $time = $data['time'];
+    $max = $time;
+    if (empty($time)) {
+        return http_response_code(403);
+    }
+
     $dir = sprintf("/uploads/%s", $channelId);
     if (is_dir($dir)) {
-        $files = array_values(array_diff(scandir($dir), array('..', '.')));
+        $files = array_diff(scandir($dir), array('..', '.'));
+        $files = array_filter($files, "filterJson");
+        $files = array_values($files);
+
+        for ($i=0; $i<count($files); $i++) {
+            $file = $files[$i];
+            $contents = file_get_contents(sprintf("/uploads/%s/%s.json",$channelId, $file));
+            $contents = json_decode($contents, true);
+
+            $item = array(
+                'filename' => $contents['filename'],
+                'size' => $contents['size'],
+                'uploadName' => $contents['uploadName'],
+                'timestamp' => $contents['timestamp']
+            );
+
+            if ($contents['timestamp'] > $time) {
+                $files[$i] = $item;
+
+                if ($contents['timestamp'] > $max) {
+                    $max = $contents['timestamp'];
+                }
+            } else {
+                unset($files[$i]);
+            }
+        }
     } else {
         $files = array();
     }
@@ -58,7 +93,8 @@ if ($method === 'getFileList') {
     }
 
     $response = array(
-        $channelId => $files
+        'time' => $max,
+        'channels' => array($channelId => $files)
     );
 
     header('Content-Type: application/json');

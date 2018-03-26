@@ -62,15 +62,21 @@ if (count($_FILES) > 0) {
         $uploadName = sprintf('/uploads/%s/%s', $channelId, $newName);
 
         if (!is_uploaded_file($tmpName)) {
-            rename($value['tmp_name'], $uploadName);
+            rename($tmpName, $uploadName);
         } else {
             move_uploaded_file($tmpName, $uploadName);
         }
 
-        $files[] = array(
-            'name' => $value['name'],
-            'filename' => $newName
+        $manifest = array(
+            'filename' => $value['name'],
+            'size' => $value['size'],
+            'uploadName' => $newName,
+            'timestamp' => time()
         );
+
+        $myfile = fopen($uploadName . ".json", "w") or die("Unable to open file!");
+        fwrite($myfile, json_encode($manifest));
+        fclose($myfile);
     }
 }
 
