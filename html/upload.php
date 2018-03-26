@@ -2,9 +2,9 @@
 
 session_start();
 
-$channelId = $_REQUEST['transferSessionId'];
+$channelId = $_REQUEST['channelId'];
 if (empty($channelId)) {
-    header(403);
+    http_response_code(403);
     return;
 }
 
@@ -73,7 +73,5 @@ if (count($_FILES) > 0) {
         );
     }
 }
-
-$_SESSION['files'] = $files;
 
 echo "Ok";

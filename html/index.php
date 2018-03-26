@@ -22,10 +22,10 @@
         function uploadFile() {
             console.log(document.getElementById('fileToUpload').files[0]);
 
-            getSession(function(id) {
+            getSession(function(channelId) {
                 var fd = new FormData();
                 fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
-                fd.append("transferSessionId", id);
+                fd.append("channelId", channelId);
 
                 var xhr = new XMLHttpRequest();
                 xhr.upload.addEventListener("progress", uploadProgress, false);
@@ -77,7 +77,7 @@
             window.location.reload();
         }
 
-        function getFileList() {
+        function getFileList(channelId) {
             var http = new XMLHttpRequest();
             http.open("POST", "api.php", true);
             http.setRequestHeader("Content-type", "application/json");
@@ -87,19 +87,27 @@
                     document.getElementById("files").innerHTML = this.responseText;
 
                     var json = JSON.parse(this.response);
-                    console.log(json);
+                    console.log('getFileList', json);
 
                     var result = "<ul>";
-                    json.files.forEach(function(element) {
-                       console.log(element);
-                       result +=
-                           "<li>" +
-                           element.name +
-                           "<a href='/api/download/" +
-                           element.filename +
-                           "'> (download)</a>"
-                           + "</li>";
-                    });
+
+                    for (var channelId in json) {
+                        console.log(channelId);
+
+                        json[channelId].forEach(function(file) {
+                           console.log(file);
+                           result +=
+                               "<li>" +
+                               file+
+                               "<a href='/api/download/" +
+                               channelId +
+                               '/' +
+                               file +
+                               "'> (download)</a>"
+                               + "</li>";
+                        });
+                    }
+
                     result += "</ul>";
                     document.getElementById("files").innerHTML = result;
 
@@ -112,7 +120,7 @@
                 }
             };
 
-            http.send(JSON.stringify({method:"getFileList"}));
+            http.send(JSON.stringify({method:"getFileList", channelId: channelId}));
         }
 
         function getSession(callback) {
@@ -123,10 +131,10 @@
             http.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     var json = JSON.parse(this.response);
-                    console.log(json);
+                    console.log('getSession', json);
 
                     if (callback) {
-                        callback(json.transferSessionId);
+                        callback(json.channelId);
                     }
                 }
             };
@@ -142,16 +150,16 @@
             http.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     var json = JSON.parse(this.response);
-                    console.log(json);
+                    console.log('startSession', json);
 
-                    callback(json.transferSessionId);
+                    callback(json.channelId);
                 }
             };
 
             http.send(JSON.stringify({method:"startSession",name:name}));
         }
 
-        function joinSession(id) {
+        function joinChannel(id) {
             var http = new XMLHttpRequest();
             http.open("POST", "api.php", true);
             http.setRequestHeader("Content-type", "application/json");
@@ -159,11 +167,11 @@
             http.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     var json = JSON.parse(this.response);
-                    console.log(json);
+                    console.log('joinChannel', json);
                 }
             };
 
-            http.send(JSON.stringify({method:"joinSession",transferSessionId:id}));
+            http.send(JSON.stringify({method:"joinChannel",channelId:id}));
         }
 
         function downloadFile(evt, filename) {
@@ -199,12 +207,21 @@
     <input type="button" name="reset" value="Reset" onclick="resetFiles()" />
 </div>
 
+    <input type="button" name="reset" value="Reset" onclick="resetFiles()" />
+
 <script>
-    getFileList();
-    startSession('test', function(id) {
-        console.log(id);
-        joinSession(id);
-        getSession();
+    getSession(function(id) {
+        if (id === null) {
+            console.log('started a new session');
+
+            startSession('test', function(id) {
+                getFileList(id);
+            });
+        } else {
+            console.log('joined an existing session');
+            joinChannel(id);
+            getFileList(id);
+        }
     });
 </script>
 
