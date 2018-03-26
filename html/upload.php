@@ -2,6 +2,21 @@
 
 session_start();
 
+$channelId = $_REQUEST['transferSessionId'];
+if (empty($channelId)) {
+    header(403);
+    return;
+}
+
+$uploads = '/uploads';
+if (!is_dir($uploads)) {
+    throw new Exception($uploads . ' does not exist!');
+}
+
+if (!is_dir('/uploads/' . $channelId)) {
+    mkdir('/uploads/' . $channelId);
+}
+
 //Enable error reporting.
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -32,11 +47,6 @@ if(!is_writable($tempFolder)){
     echo 'The directory "' . $tempFolder . '" is writable. All is good.<br>';
 }
 
-$uploads = '/uploads';
-if (!is_dir($uploads)) {
-    throw new Exception($uploads . ' does not exist!');
-}
-
 var_dump($_FILES);
 //var_dump($_PUT);
 
@@ -49,11 +59,12 @@ if (count($_FILES) > 0) {
     foreach($_FILES as $key => $value) {
         $tmpName = $value['tmp_name'];
         $newName = sha1_file($tmpName);
+        $uploadName = sprintf('/uploads/%s/%s', $channelId, $newName);
 
         if (!is_uploaded_file($tmpName)) {
-            rename($value['tmp_name'], sprintf('/uploads/%s', $newName));
+            rename($value['tmp_name'], $uploadName);
         } else {
-            move_uploaded_file($tmpName, sprintf('/uploads/%s', $newName));
+            move_uploaded_file($tmpName, $uploadName);
         }
 
         $files[] = array(

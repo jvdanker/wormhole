@@ -22,16 +22,20 @@
         function uploadFile() {
             console.log(document.getElementById('fileToUpload').files[0]);
 
-            var fd = new FormData();
-            fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
+            getSession(function(id) {
+                var fd = new FormData();
+                fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
+                fd.append("transferSessionId", id);
 
-            var xhr = new XMLHttpRequest();
-            xhr.upload.addEventListener("progress", uploadProgress, false);
-            xhr.addEventListener("load", uploadComplete, false);
-            xhr.addEventListener("error", uploadFailed, false);
-            xhr.addEventListener("abort", uploadCanceled, false);
-            xhr.open("POST", "upload.php");
-            xhr.send(fd);
+                var xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener("progress", uploadProgress, false);
+                xhr.addEventListener("load", uploadComplete, false);
+                xhr.addEventListener("error", uploadFailed, false);
+                xhr.addEventListener("abort", uploadCanceled, false);
+                xhr.open("POST", "upload.php");
+                xhr.send(fd);
+            });
+
         }
 
         function uploadProgress(evt) {
@@ -111,6 +115,57 @@
             http.send(JSON.stringify({method:"getFileList"}));
         }
 
+        function getSession(callback) {
+            var http = new XMLHttpRequest();
+            http.open("POST", "api.php", true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var json = JSON.parse(this.response);
+                    console.log(json);
+
+                    if (callback) {
+                        callback(json.transferSessionId);
+                    }
+                }
+            };
+
+            http.send(JSON.stringify({method:"getSession"}));
+        }
+
+        function startSession(name, callback) {
+            var http = new XMLHttpRequest();
+            http.open("POST", "api.php", true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var json = JSON.parse(this.response);
+                    console.log(json);
+
+                    callback(json.transferSessionId);
+                }
+            };
+
+            http.send(JSON.stringify({method:"startSession",name:name}));
+        }
+
+        function joinSession(id) {
+            var http = new XMLHttpRequest();
+            http.open("POST", "api.php", true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var json = JSON.parse(this.response);
+                    console.log(json);
+                }
+            };
+
+            http.send(JSON.stringify({method:"joinSession",transferSessionId:id}));
+        }
+
         function downloadFile(evt, filename) {
             evt.preventDefault();
 
@@ -146,6 +201,11 @@
 
 <script>
     getFileList();
+    startSession('test', function(id) {
+        console.log(id);
+        joinSession(id);
+        getSession();
+    });
 </script>
 
 </body>
