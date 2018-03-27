@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /var/www/html
 ADD src/Chat.php src/
 ADD server.php .
-ADD index.html .
 ADD composer.json .
 
 RUN composer install --prefer-dist
+
+CMD ["/usr/local/bin/php", "/var/www/html/server.php"]

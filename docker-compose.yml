@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  server:
+    image: "ss"
+    ports:
+     - "8081:80"
+
+  client:
+    image: "sc"
+    ports:
+    - "8080:80"
