@@ -6,13 +6,12 @@ test
     var conn = new WebSocket('ws://localhost:8081');
     conn.onopen = function (e) {
         console.log("Connection established!");
+        conn.send('Hello World!');
     };
-
     conn.onmessage = function (e) {
         console.log(e.data);
-    };
 
-    conn.send('Hello World!');
+    };
 </script>
 </body>
 </html>

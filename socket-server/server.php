@@ -12,7 +12,7 @@ $server = IoServer::factory(
             new Chat()
         )
     ),
-    8081
+    8080
 );
 
 echo "Server running...";

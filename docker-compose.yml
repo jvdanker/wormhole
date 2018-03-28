@@ -1,12 +1,22 @@
-version: '3'
+version: '3.2'
 
 services:
   server:
-    image: "ss"
+    build: ./socket-server
+    image: ss
+    #volumes:
+    #  - type: bind
+    #    source: ./socket-server/src
+    #    target: /var/www/html
     ports:
-     - "8081:80"
+      - "8081:8080"
 
   client:
-    image: "sc"
+    build: ./socket-client
+    image: sc
+    #volumes:
+    #  - type: bind
+    #    source: ./socket-client/src
+    #    target: /var/www/html
     ports:
-    - "8080:80"
+      - "8080:80"

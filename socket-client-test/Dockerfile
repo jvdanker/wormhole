@@ -1,8 +1,6 @@
 FROM brettt89/silverstripe-web:7.1-platform
 
 WORKDIR /var/www/html
-COPY html/ ./html/
-COPY src/ ./src/
-COPY .htaccess .
+ADD src/index.html .
 
 EXPOSE 80
