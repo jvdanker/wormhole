@@ -10,6 +10,21 @@
     </style>
 </head>
 <body>
+<!--
+STATES:
+- initial
+- name entered
+- session started
+- joined session
+- transferring files
+
+ACTIONS:
+- enter name
+- start session
+- join session
+- upload file(s)
+- download file(s)
+-->
     <form id="form1" enctype="multipart/form-data" method="post" action="../src/upload_stream.php">
         <div class="row">
             <label for="fileToUpload">Select a File to Upload</label><br />
@@ -55,24 +70,23 @@
             document.getElementById("files").innerHTML = result;
         }
 
-        getSession(function(channelId) {
-            if (channelId === null) {
-                startSession('test', function(channelId) {
-                    console.log('started a new session');
-                    getFileList(channelId).then(showFiles);
-                });
-            } else {
-                console.log('joined an existing session');
-                joinChannel(channelId);
-                getFileList(channelId).then(showFiles);
-            }
-        });
-    </script>
-    <script>
         var conn = new WebSocket('ws://localhost:8081');
         conn.onopen = function (e) {
             console.log("Connection established!");
             conn.send('Hello World!');
+
+            getSession(function(channelId) {
+                if (channelId === null) {
+                    startSession('test', function(channelId) {
+                        console.log('started a new session');
+                        getFileList(channelId).then(showFiles);
+                    });
+                } else {
+                    console.log('joined an existing session');
+                    joinChannel(channelId);
+                    getFileList(channelId).then(showFiles);
+                }
+            });
         };
         conn.onmessage = function (e) {
             console.log(e.data);
