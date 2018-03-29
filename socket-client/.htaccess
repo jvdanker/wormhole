@@ -6,11 +6,11 @@
 
         RewriteCond %{REQUEST_URI} !^/src/(.+)$
         RewriteCond %{REQUEST_URI} ^(.+).php$
-#        RewriteCond %{REQUEST_METHOD} POST
         RewriteRule ^(.*)$ src/$1 [L]
 
+        RewriteCond %{REQUEST_URI} !^/src/(.+)$
         RewriteCond %{REQUEST_URI} ^/api/download/(.*)$
-        RewriteRule ^(.*)$ src/api.php?url=$1&%{QUERY_STRING} [L,END]
+        RewriteRule ^(.*)$ src/download.php?url=$1&%{QUERY_STRING} [L,END]
 
         RewriteCond %{REQUEST_URI} !^/html/(.*)$
         RewriteCond %{REQUEST_URI} !^/src/(.*)$

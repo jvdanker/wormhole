@@ -17,7 +17,7 @@
 
 if(!isset($_REQUEST['file']) || empty($_REQUEST['file']))
 {
-    header("HTTP/1.0 400 Bad Request");
+    http_response_code(400);
     exit;
 }
 
