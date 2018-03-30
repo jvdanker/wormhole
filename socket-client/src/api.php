@@ -120,7 +120,7 @@ if ($method === 'startSession') {
     $response['channelId'] = $channelId;
 
     if (!is_dir('/uploads/' . $channelId)) {
-        mkdir('/uploads/' . $channelId);
+        @mkdir('/uploads/' . $channelId);
     }
 
     header('Content-Type: application/json');

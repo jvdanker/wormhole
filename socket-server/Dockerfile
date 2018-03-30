@@ -4,17 +4,15 @@ RUN apt-get update && apt-get install -y \
     unzip \
     zip
 
+USER www-data
+
 WORKDIR /var/www/html
-ADD src/composer.json .
-ADD src/composer.lock .
+ADD composer.json .
+ADD composer.lock .
+COPY src/ ./src/
 
-RUN composer install --prefer-dist
-
-ADD src/Chat.php src/
-ADD server.php .
-
-RUN composer dump-autoload
+RUN composer install
 
 EXPOSE 8080
 
-CMD ["/usr/local/bin/php", "/var/www/html/server.php"]
+CMD ["/usr/local/bin/php", "/var/www/html/src/server.php"]

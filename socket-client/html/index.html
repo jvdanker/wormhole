@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Upload Files using XMLHttpRequest - Minimal</title>
-    <script type="text/javascript" src="scripts.js"></script>
+    <title></title>
+    <script type="application/javascript" src="http.js"></script>
+    <script type="application/javascript" src="scripts.js"></script>
     <style>
         .hidden {
             display: none;
@@ -75,7 +76,7 @@ ACTIONS:
             console.log("Connection established!");
             conn.send('Hello World!');
 
-            getSession(function(channelId) {
+            getSession().then(function (channelId) {
                 if (channelId === null) {
                     startSession('test', function(channelId) {
                         console.log('started a new session');
@@ -88,9 +89,9 @@ ACTIONS:
                 }
             });
         };
+
         conn.onmessage = function (e) {
             console.log(e.data);
-
         };
     </script>
 </body>

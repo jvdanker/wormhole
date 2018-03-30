@@ -96,23 +96,20 @@ function getFileList(channelId, timestamp) {
     });
 }
 
-function getSession(callback) {
-    var http = new XMLHttpRequest();
-    http.open("POST", "api.php", true);
-    http.setRequestHeader("Content-type", "application/json");
-
-    http.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var json = JSON.parse(this.response);
+function getSession() {
+    return new Promise(function(resolve, reject) {
+        var http = new Http();
+        http.post('api.php', {
+            method: "getSession"
+        }).then(function (response) {
+            var json = JSON.parse(response);
             console.log('getSession', json);
-
-            if (callback) {
-                callback(json.channelId);
-            }
-        }
-    };
-
-    http.send(JSON.stringify({method:"getSession"}));
+            resolve(json.channelId);
+        }, function (error) {
+            console.error("Failed!", error);
+            reject(error);
+        });
+    });
 }
 
 function startSession(name, callback) {
@@ -122,6 +119,8 @@ function startSession(name, callback) {
 
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+            console.log(this.response);
+
             var json = JSON.parse(this.response);
             console.log('startSession', json);
 
@@ -139,7 +138,7 @@ function joinChannel(id) {
 
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            var json = JSON.parse(this.response);x
+            var json = JSON.parse(this.response);
             console.log('joinChannel', json);
         }
     };

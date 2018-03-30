@@ -5,10 +5,10 @@ services:
     build:
       context: ./socket-server
     image: ss
-    #volumes:
-    #  - type: bind
-    #    source: ./socket-server/src
-    #    target: /var/www/html
+    volumes:
+      - type: bind
+        source: ./socket-server
+        target: /var/www/html
     ports:
       - "8081:8080"
 
