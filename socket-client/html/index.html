@@ -71,29 +71,21 @@ ACTIONS:
             document.getElementById("files").innerHTML = result;
         }
 
-        function getCookie(cname) {
-            var name = cname + "=";
-            var decodedCookie = decodeURIComponent(document.cookie);
-            var ca = decodedCookie.split(';');
-            for(var i = 0; i <ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
         var conn = new WebSocket('ws://localhost:8081');
         conn.onopen = function (e) {
             console.log("Connection established!");
 
             console.log(getCookie('PHPSESSID'));
             this.send(JSON.stringify({
-                cookie : getCookie('PHPSESSID')
+                message: "Hello world!"
+            }));
+            this.send(JSON.stringify({
+                command: "name",
+                name: "Juan"
+            }));
+            this.send(JSON.stringify({
+                command: "nop",
+                name: "nop"
             }));
 
             getSession().then(function (channelId) {

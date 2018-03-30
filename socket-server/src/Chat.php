@@ -10,11 +10,7 @@ class Chat implements MessageComponentInterface {
         $this->clients = new \SplObjectStorage;
     }
 
-    public function onOpen(ConnectionInterface $conn) {
-        echo "onOpen";
-        // Store the new connection to send messages to later
-        $this->clients->attach($conn);
-
+    private function getPhpSessionId(ConnectionInterface $conn) {
         $httpRequest = $conn->httpRequest;
         $cookies = $httpRequest->getHeader('Cookie');
 
@@ -24,8 +20,28 @@ class Chat implements MessageComponentInterface {
             list($key, $val) = explode('=', $itm,2);
             $cookies[$key] = $val;
         }
-        print_r($cookies);
-        $conn->phpSessionId = $cookies['PHPSESSID'];
+        return $cookies['PHPSESSID'];
+    }
+
+    public function onOpen(ConnectionInterface $conn) {
+        echo "-----------------------------------------------------\n";
+        echo "onOpen\n";
+
+//        $conn->session = array();
+//        $conn->session['test'] = 'hallo';
+
+        // Store the new connection to send messages to later
+        $this->clients->attach($conn);
+
+//        var_dump($conn);
+//        $test = array();
+//        $test['test'] = 'testen';
+//        $conn->test = $test;
+//        var_dump($test);
+//        var_dump($conn->test);
+
+//        $conn->session['PHPSESSID'] = $this->getPhpSessionId($conn);
+//        echo sprintf("PHPSESSID=%s\n", $conn->session['PHPSESSID']);
 
         echo "New connection! ({$conn->resourceId})\n";
     }
@@ -35,12 +51,30 @@ class Chat implements MessageComponentInterface {
         echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
             , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
 
-        echo "PHPSESSID = " . $from->phpSessionId;
-//        $message = json_decode($msg, true);
-//        var_dump($from);
-//        echo sprintf("message = %s", $message);
+        echo sprintf("PHPSESSID=%s\n", $this->getPhpSessionId($from));
 
-        foreach ($this->clients as $client) {
+//        var_dump($from->test);
+
+        $message = json_decode($msg, true);
+        var_dump($message);
+
+        if ($message['command'] === 'name') {
+            echo sprintf("Set name to %s\n", $message['name']);
+            // todo sync to php session on other side
+            $session = [];
+            $session['name'] = $message['name'];
+
+            $from->session = $session;
+        }
+
+        if (isset($from->session)) {
+            echo "From = ";
+            echo $from->session['name'];
+            echo "\n";
+//            var_dump($from->session);
+        }
+
+       foreach ($this->clients as $client) {
             if ($from !== $client) {
                 // The sender is not the receiver, send to each client connected
                 $client->send($msg);
