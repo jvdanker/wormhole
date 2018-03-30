@@ -26,6 +26,9 @@ ACTIONS:
 - upload file(s)
 - download file(s)
 -->
+    <input id="handle" type="text" name="handle" value="work computer" />
+    <button type="button" onclick="setHandle()">set handle</button>
+
     <form id="form1" enctype="multipart/form-data" method="post" action="../src/upload_stream.php">
         <div class="row">
             <label for="fileToUpload">Select a File to Upload</label><br />
@@ -49,6 +52,14 @@ ACTIONS:
     <input type="button" name="reset" value="Reset" onclick="resetFiles()" />
 
     <script>
+        function setHandle() {
+            var name = document.getElementById('handle').value;
+            conn.send(JSON.stringify({
+                command: "name",
+                name: name
+            }));
+        }
+
         function showFiles(files) {
             console.log('showFiles', files);
             var result = "<ul>";
@@ -71,22 +82,13 @@ ACTIONS:
             document.getElementById("files").innerHTML = result;
         }
 
+        getSession();
+        
         var conn = new WebSocket('ws://localhost:8081');
         conn.onopen = function (e) {
             console.log("Connection established!");
 
             console.log(getCookie('PHPSESSID'));
-            this.send(JSON.stringify({
-                message: "Hello world!"
-            }));
-            this.send(JSON.stringify({
-                command: "name",
-                name: "Juan"
-            }));
-            this.send(JSON.stringify({
-                command: "nop",
-                name: "nop"
-            }));
 
             getSession().then(function (channelId) {
                 if (channelId === null) {

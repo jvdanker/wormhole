@@ -32,6 +32,9 @@ class Chat implements MessageComponentInterface {
 
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
+        if (empty($this->getPhpSessionId($conn))) {
+            die("empty session id");
+        }
 
 //        var_dump($conn);
 //        $test = array();
@@ -42,6 +45,8 @@ class Chat implements MessageComponentInterface {
 
 //        $conn->session['PHPSESSID'] = $this->getPhpSessionId($conn);
 //        echo sprintf("PHPSESSID=%s\n", $conn->session['PHPSESSID']);
+
+        $conn->session = [];
 
         echo "New connection! ({$conn->resourceId})\n";
     }
@@ -61,18 +66,14 @@ class Chat implements MessageComponentInterface {
         if ($message['command'] === 'name') {
             echo sprintf("Set name to %s\n", $message['name']);
             // todo sync to php session on other side
-            $session = [];
+            $session = $from->session;
             $session['name'] = $message['name'];
-
             $from->session = $session;
         }
 
-        if (isset($from->session)) {
-            echo "From = ";
-            echo $from->session['name'];
-            echo "\n";
-//            var_dump($from->session);
-        }
+        echo "From = ";
+        echo $from->session['name'];
+        echo "\n";
 
        foreach ($this->clients as $client) {
             if ($from !== $client) {
