@@ -15,14 +15,30 @@ class Chat implements MessageComponentInterface {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
 
+        $httpRequest = $conn->httpRequest;
+        $cookies = $httpRequest->getHeader('Cookie');
+
+        $headerCookies = explode('; ', $cookies[0]);
+        $cookies = array();
+        foreach($headerCookies as $itm) {
+            list($key, $val) = explode('=', $itm,2);
+            $cookies[$key] = $val;
+        }
+        print_r($cookies);
+        $conn->phpSessionId = $cookies['PHPSESSID'];
+
         echo "New connection! ({$conn->resourceId})\n";
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
-        echo "onMessage";
         $numRecv = count($this->clients) - 1;
         echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
             , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
+
+        echo "PHPSESSID = " . $from->phpSessionId;
+//        $message = json_decode($msg, true);
+//        var_dump($from);
+//        echo sprintf("message = %s", $message);
 
         foreach ($this->clients as $client) {
             if ($from !== $client) {
