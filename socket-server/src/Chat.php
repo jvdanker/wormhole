@@ -48,21 +48,77 @@ class Chat implements MessageComponentInterface {
         $session = [];
         $session['PHPSESSID'] = $this->getPhpSessionId($conn);
         $session['CHANNEL'] = $channel;
+        $session['name'] = 'Me @ ' . $channel;
         $conn->session = $session;
 
         print_r($conn->session);
 
         $msg = json_encode(array(
             "channel" => $channel,
+            "yourName" => 'Me @ ' . $channel,
             "members" => [[
                 "resourceId" => $conn->resourceId,
-                "name" => ''
+                "name" => 'Me @ ' . $channel
             ]]
         ));
 
         $conn->send($msg);
 
         echo "New connection! ({$conn->resourceId})\n";
+    }
+
+    public function onMessage(ConnectionInterface $from, $msg) {
+        echo "------------------------------------------------------------------\n";
+        echo sprintf("New message on Connection %d, message %s\n", $from->resourceId, $msg);
+        echo sprintf("PHPSESSID=%s\n", $this->getPhpSessionId($from));
+
+        $message = json_decode($msg, true);
+        $session = $from->session;
+
+        $this->printClients();
+
+        if ($message['command'] === 'joinChannel') {
+            $oldChannel = $session['CHANNEL'];
+            $newChannel = trim($message['channel']);
+            if (!empty($newChannel) && $this->channelExists($newChannel)) {
+                $session['CHANNEL'] = $newChannel;
+                $from->session = $session;
+
+                $this->updateChannelMembers($oldChannel);
+                $this->updateChannelMembers($newChannel);
+            } else {
+                $this->sendError($from, $msg, "Invalid channel");
+            }
+        }
+
+        if ($message['command'] === 'name') {
+            $channel = $session['CHANNEL'];
+            $session['name'] = $message['name'];
+            $from->session = $session;
+
+            $this->updateChannelMembers($channel);
+        }
+
+        $this->printClients();
+    }
+
+    public function onClose(ConnectionInterface $conn) {
+        echo "onClose";
+        // The connection is closed, remove it, as we can no longer send it messages
+        $this->clients->detach($conn);
+
+        $this->removeClientFromChannel($conn);
+
+        echo "Connection {$conn->resourceId} has disconnected\n";
+    }
+
+    public function onError(ConnectionInterface $conn, \Exception $e) {
+        echo "onError";
+        echo "An error has occurred: {$e->getMessage()}\n";
+
+        $this->removeClientFromChannel($conn);
+
+        $conn->close();
     }
 
     private function printClients() {
@@ -102,45 +158,36 @@ class Chat implements MessageComponentInterface {
         }
     }
 
-    public function onMessage(ConnectionInterface $from, $msg) {
-        echo "------------------------------------------------------------------\n";
-        echo sprintf("New message on Connection %d, message %s\n", $from->resourceId, $msg);
-        echo sprintf("PHPSESSID=%s\n", $this->getPhpSessionId($from));
-
-        $message = json_decode($msg, true);
-        $session = $from->session;
-
-        $this->printClients();
-
-        if ($message['command'] === 'joinChannel') {
-            $session['CHANNEL'] = $message['channel'];
-            $from->session = $session;
-
-            $this->updateChannelMembers($session['CHANNEL']);
+    private function channelExists($channel) {
+        foreach ($this->clients as $client) {
+            $session = $client->session;
+            if ($session['CHANNEL'] === $channel) {
+                return true;
+            }
         }
 
-        if ($message['command'] === 'name') {
-            $session['name'] = $message['name'];
-            $from->session = $session;
+        return false;
+    }
 
-            $this->updateChannelMembers($session['CHANNEL']);
+    private function sendToSender($from, $message) {
+        foreach ($this->clients as $client) {
+            if ($from === $client) {
+                $client->send($message);
+            }
         }
-
-        $this->printClients();
     }
 
-    public function onClose(ConnectionInterface $conn) {
-        echo "onClose";
-        // The connection is closed, remove it, as we can no longer send it messages
-        $this->clients->detach($conn);
-
-        echo "Connection {$conn->resourceId} has disconnected\n";
+    private function sendError($from, $msg, $error) {
+        $this->sendToSender($from, json_encode([
+            "status" => $error,
+            "request" => $msg
+        ]));
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e) {
-        echo "onError";
-        echo "An error has occurred: {$e->getMessage()}\n";
-
-        $conn->close();
+    private function removeClientFromChannel(ConnectionInterface $conn) {
+        $session = $conn->session;
+        $channel = $session['CHANNEL'];
+        unset($conn->session);
+        $this->updateChannelMembers($channel);
     }
 }
