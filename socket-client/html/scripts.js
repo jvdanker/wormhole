@@ -32,7 +32,7 @@ function fileSelected() {
 function uploadFile() {
     console.log(document.getElementById('fileToUpload').files[0]);
 
-    getSession(function(channelId) {
+    getSession().then(function(channelId) {
         var fd = new FormData();
         fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
         fd.append("channelId", channelId);
@@ -45,7 +45,6 @@ function uploadFile() {
         xhr.open("POST", "upload.php");
         xhr.send(fd);
     });
-
 }
 
 function uploadProgress(evt) {
@@ -60,8 +59,8 @@ function uploadProgress(evt) {
 
 function uploadComplete(evt) {
     /* This event is raised when the server send back a response */
-    console.log(evt.target.responseText);
-    window.location.reload();
+    console.log(evt.target.response);
+    // window.location.reload();
 }
 
 function uploadFailed(evt) {
