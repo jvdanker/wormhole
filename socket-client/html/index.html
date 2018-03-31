@@ -8,6 +8,11 @@
         .hidden {
             display: none;
         }
+
+        #currentChannel {
+            font-size: 2em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -26,8 +31,20 @@ ACTIONS:
 - upload file(s)
 - download file(s)
 -->
-    <input id="handle" type="text" name="handle" value="work computer" />
-    <button type="button" onclick="setHandle()">set handle</button>
+    <h1>Channel</h1>
+    <div id="currentChannel"></div>
+    <div>
+        <input id="channel" type="text" name="handle" value="" size="50" />
+        <button type="button" onclick="setChannel()">set channel</button>
+    </div>
+
+    <h1>Members</h1>
+    <div id="members"></div>
+
+    <div>
+        <input id="handle" type="text" name="handle" value="work computer" />
+        <button type="button" onclick="setHandle()">set handle</button>
+    </div>
 
     <form id="form1" enctype="multipart/form-data" method="post" action="../src/upload_stream.php">
         <div class="row">
@@ -52,6 +69,14 @@ ACTIONS:
     <input type="button" name="reset" value="Reset" onclick="resetFiles()" />
 
     <script>
+        function setChannel() {
+            var channel = document.getElementById('channel').value;
+            conn.send(JSON.stringify({
+                command: "joinChannel",
+                channel: channel
+            }));
+        }
+
         function setHandle() {
             var name = document.getElementById('handle').value;
             conn.send(JSON.stringify({
@@ -82,30 +107,48 @@ ACTIONS:
             document.getElementById("files").innerHTML = result;
         }
 
-        getSession();
-        
+        startSession();
+
         var conn = new WebSocket('ws://localhost:8081');
         conn.onopen = function (e) {
             console.log("Connection established!");
-
             console.log(getCookie('PHPSESSID'));
 
-            getSession().then(function (channelId) {
-                if (channelId === null) {
-                    startSession('test', function(channelId) {
-                        console.log('started a new session');
-                        getFileList(channelId).then(showFiles);
-                    });
-                } else {
-                    console.log('joined an existing session');
-                    joinChannel(channelId);
-                    getFileList(channelId).then(showFiles);
-                }
-            });
+            // getSession().then(function (channelId) {
+            //     if (channelId === null) {
+            //         startSession('test', function(channelId) {
+            //             console.log('started a new session');
+            //             getFileList(channelId).then(showFiles);
+            //         });
+            //     } else {
+            //         console.log('joined an existing session');
+            //         joinChannel(channelId);
+            //         getFileList(channelId).then(showFiles);
+            //     }
+            // });
         };
 
         conn.onmessage = function (e) {
-            console.log(e.data);
+            var data = JSON.parse(e.data);
+            console.log("onMessage", data);
+
+            if (data.channel) {
+                var element = document.getElementById('currentChannel');
+                while(element.childNodes.length >= 1) {
+                    element.removeChild(element.firstChild);
+                }
+
+                var newText = document.createTextNode(data.channel);
+                element.appendChild(newText);
+
+                document.getElementById('channel').value = data.channel;
+
+                var element = document.getElementById('members');
+                data.members.forEach(function(member) {
+                    var newText = document.createTextNode(member.name);
+                    element.appendChild(newText);
+                });
+            }
         };
     </script>
 </body>

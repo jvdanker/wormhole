@@ -140,7 +140,9 @@ function startSession(name, callback) {
             var json = JSON.parse(this.response);
             console.log('startSession', json);
 
-            callback(json.channelId);
+            if (callback) {
+                callback(json.channelId);
+            }
         }
     };
 

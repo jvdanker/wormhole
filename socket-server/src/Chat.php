@@ -43,44 +43,90 @@ class Chat implements MessageComponentInterface {
 //        var_dump($test);
 //        var_dump($conn->test);
 
-//        $conn->session['PHPSESSID'] = $this->getPhpSessionId($conn);
-//        echo sprintf("PHPSESSID=%s\n", $conn->session['PHPSESSID']);
+        $channel = uniqid("", true);
 
-        $conn->session = [];
+        $session = [];
+        $session['PHPSESSID'] = $this->getPhpSessionId($conn);
+        $session['CHANNEL'] = $channel;
+        $conn->session = $session;
+
+        print_r($conn->session);
+
+        $msg = json_encode(array(
+            "channel" => $channel,
+            "members" => [[
+                "resourceId" => $conn->resourceId,
+                "name" => ''
+            ]]
+        ));
+
+        $conn->send($msg);
 
         echo "New connection! ({$conn->resourceId})\n";
     }
 
-    public function onMessage(ConnectionInterface $from, $msg) {
-        $numRecv = count($this->clients) - 1;
-        echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-            , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
+    private function printClients() {
+        echo "------------------------------------------------------------------\n";
+        foreach ($this->clients as $client) {
+            $session = $client->session;
+            echo sprintf("\t%s - %s\n", $client->resourceId, json_encode($session));
 
-        echo sprintf("PHPSESSID=%s\n", $this->getPhpSessionId($from));
-
-//        var_dump($from->test);
-
-        $message = json_decode($msg, true);
-        var_dump($message);
-
-        if ($message['command'] === 'name') {
-            echo sprintf("Set name to %s\n", $message['name']);
-            // todo sync to php session on other side
-            $session = $from->session;
-            $session['name'] = $message['name'];
-            $from->session = $session;
         }
+        echo "------------------------------------------------------------------\n";
+    }
 
-        echo "From = ";
-        echo $from->session['name'];
-        echo "\n";
-
-       foreach ($this->clients as $client) {
-            if ($from !== $client) {
-                // The sender is not the receiver, send to each client connected
-                $client->send($msg);
+    private function updateChannelMembers($channel) {
+        $members = [];
+        $clientsToInform = [];
+        foreach ($this->clients as $client) {
+            $session = $client->session;
+            if ($session['CHANNEL'] === $channel) {
+                $clientsToInform[] = $client;
+                $members[] = [
+                    "resourceId" => $client->resourceId,
+                    "name" => $session['name']
+                ];
             }
         }
+
+        $msg = json_encode(array(
+            "channel" => $channel,
+            "members" => $members
+        ));
+
+        print_r($msg);
+        echo "\n";
+
+        foreach ($clientsToInform as $client) {
+            $client->send($msg);
+        }
+    }
+
+    public function onMessage(ConnectionInterface $from, $msg) {
+        echo "------------------------------------------------------------------\n";
+        echo sprintf("New message on Connection %d, message %s\n", $from->resourceId, $msg);
+        echo sprintf("PHPSESSID=%s\n", $this->getPhpSessionId($from));
+
+        $message = json_decode($msg, true);
+        $session = $from->session;
+
+        $this->printClients();
+
+        if ($message['command'] === 'joinChannel') {
+            $session['CHANNEL'] = $message['channel'];
+            $from->session = $session;
+
+            $this->updateChannelMembers($session['CHANNEL']);
+        }
+
+        if ($message['command'] === 'name') {
+            $session['name'] = $message['name'];
+            $from->session = $session;
+
+            $this->updateChannelMembers($session['CHANNEL']);
+        }
+
+        $this->printClients();
     }
 
     public function onClose(ConnectionInterface $conn) {
