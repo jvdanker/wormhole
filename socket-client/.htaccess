@@ -1,5 +1,4 @@
 # redirect URLs like /index.php/something to /something
-
 <IfModule mod_rewrite.c>
         SetEnv HTTP_MOD_REWRITE On
         RewriteEngine On

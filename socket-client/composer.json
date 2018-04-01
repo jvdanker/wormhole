@@ -5,6 +5,6 @@
         }
     },
     "require": {
-        "ratchet/pawl": "^0.3.1"
+        "wrench/wrench": "^2.0"
     }
 }

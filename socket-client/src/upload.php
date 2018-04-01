@@ -1,6 +1,11 @@
 <?php
 
+namespace MyApp;
+
+use Wrench\Client;
+
 session_start();
+header('Content-Type: text/plain; charset=utf-8');
 
 $channelId = $_REQUEST['channelId'];
 if (empty($channelId)) {
@@ -30,6 +35,9 @@ if(ini_get('file_uploads')){
 }
 
 $tempFolder = ini_get('upload_tmp_dir');
+if (empty($tempFolder)) {
+    $tempFolder = sys_get_temp_dir();
+}
 
 echo 'Your upload_tmp_dir directive has been set to: "' . $tempFolder . '"<br>';
 
@@ -47,10 +55,8 @@ if(!is_writable($tempFolder)){
     echo 'The directory "' . $tempFolder . '" is writable. All is good.<br>';
 }
 
-var_dump($_FILES);
+//var_dump($_FILES);
 //var_dump($_PUT);
-
-header('Content-Type: text/plain; charset=utf-8');
 
 $files = array();
 
@@ -79,5 +85,11 @@ if (count($_FILES) > 0) {
         fclose($myfile);
     }
 }
+
+$client = new Client("ws://server:8080", "http://server/");
+$client->connect();
+$client->sendData('hello');
+$response = $client->receive()[0]->getPayload();
+$client->disconnect();
 
 echo "Ok";
