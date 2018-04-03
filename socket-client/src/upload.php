@@ -2,7 +2,7 @@
 
 namespace MyApp;
 
-use Wrench\Client;
+require __DIR__ . '/../vendor/autoload.php';
 
 session_start();
 header('Content-Type: text/plain; charset=utf-8');
@@ -86,10 +86,15 @@ if (count($_FILES) > 0) {
     }
 }
 
-$client = new Client("ws://server:8080", "http://server/");
-$client->connect();
-$client->sendData('hello');
-$response = $client->receive()[0]->getPayload();
-$client->disconnect();
+\Ratchet\Client\connect('ws://server:8080')->then(function($conn) {
+    $conn->on('message', function($msg) use ($conn) {
+        echo "Received: {$msg}\n";
+        $conn->close();
+    });
+
+    $conn->send('Hello World!');
+}, function ($e) {
+    echo "Could not connect: {$e->getMessage()}\n";
+});
 
 echo "Ok";

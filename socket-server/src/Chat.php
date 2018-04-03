@@ -33,7 +33,7 @@ class Chat implements MessageComponentInterface {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
         if (empty($this->getPhpSessionId($conn))) {
-            die("empty session id");
+            echo "empty session id";
         }
 
 //        var_dump($conn);
