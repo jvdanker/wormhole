@@ -112,7 +112,7 @@ ACTIONS:
 
     startSession();
 
-    var conn = new WebSocket('ws://localhost:8081');
+    var conn = new WebSocket('ws://localhost:8081/channel');
     conn.onopen = function (e) {
         console.log("Connection established!");
         console.log(getCookie('PHPSESSID'));

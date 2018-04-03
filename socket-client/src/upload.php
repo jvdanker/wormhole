@@ -86,7 +86,7 @@ if (count($_FILES) > 0) {
     }
 }
 
-\Ratchet\Client\connect('ws://server:8080')->then(function($conn) {
+\Ratchet\Client\connect('ws://server:8080/notify')->then(function($conn) {
     $conn->on('message', function($msg) use ($conn) {
         echo "Received: {$msg}\n";
         $conn->close();

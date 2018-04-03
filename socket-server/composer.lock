@@ -587,16 +587,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v4.0.6",
+            "version": "v4.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "6c181e81a3a9a7996c62ebd7803592536e729c5a"
+                "reference": "d0864a82e5891ab61d31eecbaa48bed5a09b8e6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/6c181e81a3a9a7996c62ebd7803592536e729c5a",
-                "reference": "6c181e81a3a9a7996c62ebd7803592536e729c5a",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d0864a82e5891ab61d31eecbaa48bed5a09b8e6c",
+                "reference": "d0864a82e5891ab61d31eecbaa48bed5a09b8e6c",
                 "shasum": ""
             },
             "require": {
@@ -636,7 +636,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2018-03-05T16:01:10+00:00"
+            "time": "2018-04-03T05:24:00+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -699,16 +699,16 @@
         },
         {
             "name": "symfony/routing",
-            "version": "v4.0.6",
+            "version": "v4.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/routing.git",
-                "reference": "9c6268c1970c7e507bedc8946bece32a7db23515"
+                "reference": "ca780c838046bfef4a6fd50284ae71a5d1f1a8b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/routing/zipball/9c6268c1970c7e507bedc8946bece32a7db23515",
-                "reference": "9c6268c1970c7e507bedc8946bece32a7db23515",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/ca780c838046bfef4a6fd50284ae71a5d1f1a8b2",
+                "reference": "ca780c838046bfef4a6fd50284ae71a5d1f1a8b2",
                 "shasum": ""
             },
             "require": {
@@ -773,7 +773,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2018-02-28T21:50:02+00:00"
+            "time": "2018-04-02T09:52:41+00:00"
         }
     ],
     "packages-dev": [],
