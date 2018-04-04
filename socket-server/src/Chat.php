@@ -10,19 +10,6 @@ class Chat implements MessageComponentInterface {
         $this->clients = $clients;
     }
 
-    private function getPhpSessionId(ConnectionInterface $conn) {
-        $httpRequest = $conn->httpRequest;
-        $cookies = $httpRequest->getHeader('Cookie');
-
-        $headerCookies = explode('; ', $cookies[0]);
-        $cookies = array();
-        foreach($headerCookies as $itm) {
-            list($key, $val) = explode('=', $itm,2);
-            $cookies[$key] = $val;
-        }
-        return $cookies['PHPSESSID'];
-    }
-
     public function onOpen(ConnectionInterface $conn) {
         echo "-----------------------------------------------------\n";
         echo "onOpen\n";
@@ -190,4 +177,18 @@ class Chat implements MessageComponentInterface {
         unset($conn->session);
         $this->updateChannelMembers($channel);
     }
+
+    private function getPhpSessionId(ConnectionInterface $conn) {
+        $httpRequest = $conn->httpRequest;
+        $cookies = $httpRequest->getHeader('Cookie');
+
+        $headerCookies = explode('; ', $cookies[0]);
+        $cookies = array();
+        foreach($headerCookies as $itm) {
+            list($key, $val) = explode('=', $itm,2);
+            $cookies[$key] = $val;
+        }
+        return $cookies['PHPSESSID'];
+    }
+
 }

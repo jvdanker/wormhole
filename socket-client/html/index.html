@@ -110,7 +110,7 @@ ACTIONS:
         document.getElementById("files").innerHTML = result;
     }
 
-    startSession();
+    // startSession();
 
     var conn = new WebSocket('ws://localhost:8081/channel');
     conn.onopen = function (e) {
@@ -133,7 +133,7 @@ ACTIONS:
 
     conn.onmessage = function (e) {
         var data = JSON.parse(e.data);
-        console.log("onMessage", data);
+        console.log("onMessage: ", data);
 
         if (data.channel) {
             var element = document.getElementById('currentChannel');

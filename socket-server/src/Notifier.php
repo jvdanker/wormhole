@@ -22,15 +22,28 @@ class Notifier implements MessageComponentInterface {
         echo "------------------------------------------------------------------\n";
         echo sprintf("New message on Connection %d, message %s\n", $from->resourceId, $msg);
 
+        $message = json_decode($msg, true);
+        $channel = $message['channel'];
+        $sender = $message['sender'];
+        var_dump($message);
+
+        foreach ($this->clients as $client) {
+            $session = $client->session;
+            $clientPhpSessionId = $session['PHPSESSID'];
+            $clientChannelId = $session['CHANNEL'];
+
+            echo sprintf("%s %s %s %s", $clientChannelId, $channel, $clientPhpSessionId, $sender);
+
+            if ($clientChannelId === $channel && $clientPhpSessionId !== $sender) {
+                echo sprintf("Send notification to %s\n", $message['sender']);
+                $client->send($msg);
+            }
+        }
+
         $message = json_encode(array(
             "status" => "ok",
         ));
-
         $from->send($message);
-
-        foreach ($this->clients as $client) {
-            $client->send($message);
-        }
     }
 
     public function onClose(ConnectionInterface $conn)
@@ -45,6 +58,19 @@ class Notifier implements MessageComponentInterface {
         echo "An error has occurred: {$e->getMessage()}\n";
 
         $conn->close();
+    }
+
+    private function getPhpSessionId(ConnectionInterface $conn) {
+        $httpRequest = $conn->httpRequest;
+        $cookies = $httpRequest->getHeader('Cookie');
+
+        $headerCookies = explode('; ', $cookies[0]);
+        $cookies = array();
+        foreach($headerCookies as $itm) {
+            list($key, $val) = explode('=', $itm,2);
+            $cookies[$key] = $val;
+        }
+        return $cookies['PHPSESSID'];
     }
 }
 

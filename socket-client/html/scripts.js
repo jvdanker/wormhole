@@ -33,6 +33,7 @@ function uploadFile() {
     console.log(document.getElementById('fileToUpload').files[0]);
 
     getSession().then(function(channelId) {
+        console.log('uploadFile:', channelId);
         var fd = new FormData();
         fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
         fd.append("channelId", channelId);
@@ -134,7 +135,7 @@ function startSession(name, callback) {
 
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            console.log(this.response);
+            console.log('startSession: ', this.response);
 
             var json = JSON.parse(this.response);
             console.log('startSession', json);

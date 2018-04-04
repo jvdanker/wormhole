@@ -79,6 +79,7 @@ if (count($_FILES) > 0) {
             'uploadName' => $newName,
             'timestamp' => time()
         );
+        $files[] = $manifest;
 
         $myfile = fopen($uploadName . ".json", "w") or die("Unable to open file!");
         fwrite($myfile, json_encode($manifest));
@@ -86,13 +87,19 @@ if (count($_FILES) > 0) {
     }
 }
 
-\Ratchet\Client\connect('ws://server:8080/notify')->then(function($conn) {
+$message = [
+    "channel" => $channelId,
+    "sender" => session_id(),
+    "files" => $files
+];
+
+\Ratchet\Client\connect('ws://server:8080/notify')->then(function($conn) use ($message) {
     $conn->on('message', function($msg) use ($conn) {
         echo "Received: {$msg}\n";
         $conn->close();
     });
 
-    $conn->send('Hello World!');
+    $conn->send(json_encode($message));
 }, function ($e) {
     echo "Could not connect: {$e->getMessage()}\n";
 });

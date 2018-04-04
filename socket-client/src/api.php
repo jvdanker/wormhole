@@ -116,6 +116,7 @@ if ($method === 'startSession') {
     session_start();
 
     $channelId = uniqid();
+    var_dump($channelId);
     $_SESSION['channelId'] = $channelId;
     $response['channelId'] = $channelId;
 
