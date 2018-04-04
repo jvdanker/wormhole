@@ -6,8 +6,8 @@ use Ratchet\ConnectionInterface;
 class Chat implements MessageComponentInterface {
     protected $clients;
 
-    public function __construct() {
-        $this->clients = new \SplObjectStorage;
+    public function __construct($clients) {
+        $this->clients = $clients;
     }
 
     private function getPhpSessionId(ConnectionInterface $conn) {

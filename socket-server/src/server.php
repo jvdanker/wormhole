@@ -8,9 +8,11 @@ use MyApp\WsRouter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+$clients = new \SplObjectStorage;
+
 $router = new WsRouter;
-$router->setRoute('/channel', new Chat);
-$router->setRoute('/notify', new Notifier);
+$router->setRoute('/channel', new Chat($clients));
+$router->setRoute('/notify', new Notifier($clients));
 
 $server = IoServer::factory(
     new HttpServer(
