@@ -71,6 +71,9 @@ ACTIONS:
 </html>
 
 
+
+
+
 <script>
     function setChannel() {
         var channel = document.getElementById('channel').value;
@@ -88,77 +91,66 @@ ACTIONS:
         }));
     }
 
-    function showFiles(files) {
-        console.log('showFiles', files);
-        var result = "<ul>";
+    // function showFiles(files) {
+    //     console.log('showFiles', files);
+    //     var result = "<ul>";
+    //
+    //     for (var channelId in files.channels) {
+    //         files.channels[channelId].forEach(function(file) {
+    //             result +=
+    //                 "<li>" +
+    //                 file.filename +
+    //                 "<a href='/api/download/" +
+    //                 channelId +
+    //                 '/' +
+    //                 file.uploadName +
+    //                 "'> (download)</a>"
+    //                 + "</li>";
+    //         });
+    //     }
+    //
+    //     result += "</ul>";
+    //     document.getElementById("files").innerHTML = result;
+    // }
 
-        for (var channelId in files.channels) {
-            files.channels[channelId].forEach(function(file) {
-                result +=
-                    "<li>" +
-                    file.filename +
-                    "<a href='/api/download/" +
-                    channelId +
-                    '/' +
-                    file.uploadName +
-                    "'> (download)</a>"
-                    + "</li>";
-            });
-        }
+    startSession().then(openWebsocketConnection);
 
-        result += "</ul>";
-        document.getElementById("files").innerHTML = result;
+    function openWebsocketConnection() {
+        var conn = new WebSocket('ws://localhost:8081/channel');
+        conn.onopen = function (e) {
+            console.log("Connection established!");
+            console.log(getCookie('PHPSESSID'));
+        };
+
+        conn.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            console.log("onMessage: ", data);
+
+            if (data.channel) {
+                var element = document.getElementById('currentChannel');
+                removeChildren(element);
+
+                var newText = document.createTextNode(data.channel);
+                element.appendChild(newText);
+
+                document.getElementById('channel').value = data.channel;
+
+                var element = document.getElementById('members');
+                removeChildren(element);
+
+                data.members.forEach(function(member) {
+                    var span = document.createElement('div')
+                    var text = document.createTextNode(member.name);
+                    span.appendChild(text);
+                    element.appendChild(span);
+                });
+            }
+
+            if (data.yourName) {
+                document.getElementById('handle').value = data.yourName;
+            }
+        };
     }
-
-    // startSession();
-
-    var conn = new WebSocket('ws://localhost:8081/channel');
-    conn.onopen = function (e) {
-        console.log("Connection established!");
-        console.log(getCookie('PHPSESSID'));
-
-        // getSession().then(function (channelId) {
-        //     if (channelId === null) {
-        //         startSession('test', function(channelId) {
-        //             console.log('started a new session');
-        //             getFileList(channelId).then(showFiles);
-        //         });
-        //     } else {
-        //         console.log('joined an existing session');
-        //         joinChannel(channelId);
-        //         getFileList(channelId).then(showFiles);
-        //     }
-        // });
-    };
-
-    conn.onmessage = function (e) {
-        var data = JSON.parse(e.data);
-        console.log("onMessage: ", data);
-
-        if (data.channel) {
-            var element = document.getElementById('currentChannel');
-            removeChildren(element);
-
-            var newText = document.createTextNode(data.channel);
-            element.appendChild(newText);
-
-            document.getElementById('channel').value = data.channel;
-
-            var element = document.getElementById('members');
-            removeChildren(element);
-
-            data.members.forEach(function(member) {
-                var span = document.createElement('div')
-                var text = document.createTextNode(member.name);
-                span.appendChild(text);
-                element.appendChild(span);
-            });
-        }
-
-        if (data.yourName) {
-            document.getElementById('handle').value = data.yourName;
-        }
-    };
 
     function removeChildren(element) {
         while(element.childNodes.length >= 1) {

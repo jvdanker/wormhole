@@ -32,20 +32,19 @@ function fileSelected() {
 function uploadFile() {
     console.log(document.getElementById('fileToUpload').files[0]);
 
-    getSession().then(function(channelId) {
-        console.log('uploadFile:', channelId);
-        var fd = new FormData();
-        fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
-        fd.append("channelId", channelId);
+    var channelId = document.getElementById('channel').value;
+    console.log('uploadFile:', channelId);
+    var fd = new FormData();
+    fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
+    fd.append("channelId", channelId);
 
-        var xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener("progress", uploadProgress, false);
-        xhr.addEventListener("load", uploadComplete, false);
-        xhr.addEventListener("error", uploadFailed, false);
-        xhr.addEventListener("abort", uploadCanceled, false);
-        xhr.open("POST", "upload.php");
-        xhr.send(fd);
-    });
+    var xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener("progress", uploadProgress, false);
+    xhr.addEventListener("load", uploadComplete, false);
+    xhr.addEventListener("error", uploadFailed, false);
+    xhr.addEventListener("abort", uploadCanceled, false);
+    xhr.open("POST", "upload.php");
+    xhr.send(fd);
 }
 
 function uploadProgress(evt) {
@@ -87,82 +86,83 @@ function resetFiles() {
     window.location.reload();
 }
 
-function getFileList(channelId, timestamp) {
-    var http = new XMLHttpRequest();
-    http.open("POST", "api.php", true);
-    http.setRequestHeader("Content-type", "application/json");
+// function getFileList(channelId, timestamp) {
+//     var http = new XMLHttpRequest();
+//     http.open("POST", "api.php", true);
+//     http.setRequestHeader("Content-type", "application/json");
+//
+//     if (timestamp === undefined) {
+//         timestamp = Math.floor((new Date).getTime()/1000);
+//     }
+//
+//     return new Promise(function (resolve, reject) {
+//         http.onreadystatechange = function() {
+//             if (this.readyState == 4 && this.status == 200) {
+//                 var json = JSON.parse(this.response);
+//                 resolve(json);
+//             }
+//         };
+//
+//         http.send(JSON.stringify({
+//             method:"getFileList",
+//             channelId: channelId,
+//             time: timestamp
+//         }));
+//     });
+// }
 
-    if (timestamp === undefined) {
-        timestamp = Math.floor((new Date).getTime()/1000);
-    }
-
-    return new Promise(function (resolve, reject) {
-        http.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var json = JSON.parse(this.response);
-                resolve(json);
-            }
-        };
-
-        http.send(JSON.stringify({
-            method:"getFileList",
-            channelId: channelId,
-            time: timestamp
-        }));
-    });
-}
-
-function getSession() {
+function startSession(name) {
     return new Promise(function(resolve, reject) {
         var http = new Http();
         http.post('api.php', {
-            method: "getSession"
+            method: "startSession",
+            name: name
         }).then(function (response) {
             var json = JSON.parse(response);
-            console.log('getSession', json);
-            resolve(json.channelId);
+            console.log('startSession', json);
+            resolve(json);
         }, function (error) {
-            console.error("Failed!", error);
+            console.error("startSession Failed!", error);
             reject(error);
         });
     });
 }
 
-function startSession(name, callback) {
-    var http = new XMLHttpRequest();
-    http.open("POST", "api.php", true);
-    http.setRequestHeader("Content-type", "application/json");
+// function startSession(name, callback) {
+//     var http = new XMLHttpRequest();
+//     http.open("POST", "api.php", true);
+//     http.setRequestHeader("Content-type", "application/json");
+//
+//     http.onreadystatechange = function() {
+//         if (this.readyState == 4 && this.status == 200) {
+//             console.log('startSession: ', this.response);
+//
+//             var json = JSON.parse(this.response);
+//             console.log('startSession', json);
+//
+//             if (callback) {
+//                 callback(json);
+//             }
+//         }
+//     };
+//
+//     http.send(JSON.stringify({method:"startSession",name:name}));
+// }
 
-    http.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log('startSession: ', this.response);
-
-            var json = JSON.parse(this.response);
-            console.log('startSession', json);
-
-            if (callback) {
-                callback(json.channelId);
-            }
-        }
-    };
-
-    http.send(JSON.stringify({method:"startSession",name:name}));
-}
-
-function joinChannel(id) {
-    var http = new XMLHttpRequest();
-    http.open("POST", "api.php", true);
-    http.setRequestHeader("Content-type", "application/json");
-
-    http.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var json = JSON.parse(this.response);
-            console.log('joinChannel', json);
-        }
-    };
-
-    http.send(JSON.stringify({method:"joinChannel",channelId:id}));
-}
+// function joinChannel(id) {
+//     var http = new XMLHttpRequest();
+//     http.open("POST", "api.php", true);
+//     http.setRequestHeader("Content-type", "application/json");
+//
+//     http.onreadystatechange = function() {
+//         if (this.readyState == 4 && this.status == 200) {
+//             var json = JSON.parse(this.response);
+//             console.log('joinChannel', json);
+//         }
+//     };
+//
+//     http.send(JSON.stringify({method:"joinChannel",channelId:id}));
+// }
 
 function downloadFile(evt, filename) {
     evt.preventDefault();

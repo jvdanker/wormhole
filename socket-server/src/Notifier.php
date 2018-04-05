@@ -34,7 +34,8 @@ class Notifier implements MessageComponentInterface {
 
             echo sprintf("%s %s %s %s", $clientChannelId, $channel, $clientPhpSessionId, $sender);
 
-            if ($clientChannelId === $channel && $clientPhpSessionId !== $sender) {
+//            if ($clientChannelId === $channel && $clientPhpSessionId !== $sender) {
+            if ($clientChannelId === $channel) {
                 echo sprintf("Send notification to %s\n", $message['sender']);
                 $client->send($msg);
             }

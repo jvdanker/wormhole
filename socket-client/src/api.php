@@ -42,106 +42,108 @@ function filterJson($item) {
     return !preg_match("/^.*\.json$/i", $item);
 }
 
-if ($method === 'getFileList') {
-    session_start();
+//if ($method === 'getFileList') {
+//    session_start();
+//
+//    $channelId = $data['channelId'];
+//    if (empty($channelId)) {
+//        return http_response_code(403);
+//    }
+//
+//    $time = $data['time'];
+//    $max = $time;
+//    if (empty($time)) {
+//        return http_response_code(403);
+//    }
+//
+//    $dir = sprintf("/uploads/%s", $channelId);
+//    if (is_dir($dir)) {
+//        $files = array_diff(scandir($dir), array('..', '.'));
+//        $files = array_filter($files, "filterJson");
+//        $files = array_values($files);
+//
+//        for ($i=0; $i<count($files); $i++) {
+//            $file = $files[$i];
+//            $contents = file_get_contents(sprintf("/uploads/%s/%s.json",$channelId, $file));
+//            $contents = json_decode($contents, true);
+//
+//            $item = array(
+//                'filename' => $contents['filename'],
+//                'size' => $contents['size'],
+//                'uploadName' => $contents['uploadName'],
+//                'timestamp' => $contents['timestamp']
+//            );
+//
+//            if ($contents['timestamp'] > $time) {
+//                $files[$i] = $item;
+//
+//                if ($contents['timestamp'] > $max) {
+//                    $max = $contents['timestamp'];
+//                }
+//            } else {
+//                unset($files[$i]);
+//            }
+//        }
+//    } else {
+//        $files = array();
+//    }
+//
+//    if (!$files) {
+//        $files = array();
+//    }
+//
+//    $response = array(
+//        'time' => $max,
+//        'channels' => array($channelId => $files)
+//    );
+//
+//    header('Content-Type: application/json');
+//    echo json_encode($response);
+//    return;
+//}
 
-    $channelId = $data['channelId'];
-    if (empty($channelId)) {
-        return http_response_code(403);
-    }
-
-    $time = $data['time'];
-    $max = $time;
-    if (empty($time)) {
-        return http_response_code(403);
-    }
-
-    $dir = sprintf("/uploads/%s", $channelId);
-    if (is_dir($dir)) {
-        $files = array_diff(scandir($dir), array('..', '.'));
-        $files = array_filter($files, "filterJson");
-        $files = array_values($files);
-
-        for ($i=0; $i<count($files); $i++) {
-            $file = $files[$i];
-            $contents = file_get_contents(sprintf("/uploads/%s/%s.json",$channelId, $file));
-            $contents = json_decode($contents, true);
-
-            $item = array(
-                'filename' => $contents['filename'],
-                'size' => $contents['size'],
-                'uploadName' => $contents['uploadName'],
-                'timestamp' => $contents['timestamp']
-            );
-
-            if ($contents['timestamp'] > $time) {
-                $files[$i] = $item;
-
-                if ($contents['timestamp'] > $max) {
-                    $max = $contents['timestamp'];
-                }
-            } else {
-                unset($files[$i]);
-            }
-        }
-    } else {
-        $files = array();
-    }
-
-    if (!$files) {
-        $files = array();
-    }
-
-    $response = array(
-        'time' => $max,
-        'channels' => array($channelId => $files)
-    );
-
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    return;
-}
-
-if ($method === 'getSession') {
-    session_start();
-
-    $response['channelId'] = $_SESSION['channelId'];
-
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    return;
-}
+//if ($method === 'getSession') {
+//    session_start();
+//
+//    $response = [];
+////    $response['channelId'] = $_SESSION['channelId'];
+//
+//    header('Content-Type: application/json');
+//    echo json_encode($response);
+//    return;
+//}
 
 if ($method === 'startSession') {
     session_start();
 
-    $channelId = uniqid();
-    var_dump($channelId);
-    $_SESSION['channelId'] = $channelId;
-    $response['channelId'] = $channelId;
+    $response = [];
 
-    if (!is_dir('/uploads/' . $channelId)) {
-        @mkdir('/uploads/' . $channelId);
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    return;
-}
-
-
-if ($method === 'joinChannel') {
-    session_start();
-
-    // todo check if session is available
-
-    $_SESSION['channelId'] = $data['channelId'];
-    $response['channelId'] = $_SESSION['channelId'];
+//    $channelId = uniqid();
+//    $_SESSION['channelId'] = $channelId;
+//    $response['channelId'] = $channelId;
+//
+//    if (!is_dir('/uploads/' . $channelId)) {
+//        @mkdir('/uploads/' . $channelId);
+//    }
 
     header('Content-Type: application/json');
     echo json_encode($response);
     return;
 }
+
+
+//if ($method === 'joinChannel') {
+//    session_start();
+//
+//     todo check if session is available
+//
+//    $_SESSION['channelId'] = $data['channelId'];
+//    $response['channelId'] = $_SESSION['channelId'];
+//
+//    header('Content-Type: application/json');
+//    echo json_encode($response);
+//    return;
+//}
 
 if ($method === 'download') {
     session_start();
