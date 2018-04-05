@@ -29,7 +29,7 @@ class Stream
         $this->input = file_get_contents('php://input');
 
         $boundary = $this->boundary();
-echo $boundary;
+        echo $boundary;
 
         if (!strlen($boundary)) {
             echo "no boundary";

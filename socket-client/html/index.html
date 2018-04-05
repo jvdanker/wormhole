@@ -148,10 +148,9 @@ ACTIONS:
                 var element = document.getElementById('files');
 
                 data.files.forEach(function(file) {
-                    var span = document.createElement('div')
-                    var text = document.createTextNode(file.filename);
-                    span.appendChild(text);
-                    element.appendChild(span);
+                    element.appendChild(document.createElement('div').
+                        appendChild(document.createTextNode(file.filename))
+                    );
                 });
             }
 
