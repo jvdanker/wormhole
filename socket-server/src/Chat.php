@@ -41,6 +41,7 @@ class Chat implements MessageComponentInterface {
         print_r($conn->session);
 
         $msg = json_encode(array(
+            "action" => "joinChannel",
             "channel" => $channel,
             "yourName" => 'Me @ ' . $channel,
             "members" => [[

@@ -62,17 +62,13 @@ ACTIONS:
         <div id="progressNumber"></div>
     </form>
 
-    <h1>Received files</h1>
+    <h1>Incoming files</h1>
     <div id="files"></div>
 
     <h1>Tasks</h1>
     <input type="button" name="reset" value="Reset session" onclick="resetFiles()" />
 </body>
 </html>
-
-
-
-
 
 <script>
     function setChannel() {
@@ -126,7 +122,9 @@ ACTIONS:
             var data = JSON.parse(e.data);
             console.log("onMessage: ", data);
 
-            if (data.channel) {
+            var action = data.action;
+
+            if (action === "joinChannel") {
                 var element = document.getElementById('currentChannel');
                 removeChildren(element);
 
@@ -141,6 +139,17 @@ ACTIONS:
                 data.members.forEach(function(member) {
                     var span = document.createElement('div')
                     var text = document.createTextNode(member.name);
+                    span.appendChild(text);
+                    element.appendChild(span);
+                });
+            }
+
+            if (action === "receiveFiles") {
+                var element = document.getElementById('files');
+
+                data.files.forEach(function(file) {
+                    var span = document.createElement('div')
+                    var text = document.createTextNode(file.filename);
                     span.appendChild(text);
                     element.appendChild(span);
                 });

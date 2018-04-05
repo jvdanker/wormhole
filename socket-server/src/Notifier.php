@@ -23,6 +23,8 @@ class Notifier implements MessageComponentInterface {
         echo sprintf("New message on Connection %d, message %s\n", $from->resourceId, $msg);
 
         $message = json_decode($msg, true);
+        $message['action'] = "receiveFiles";
+
         $channel = $message['channel'];
         $sender = $message['sender'];
         var_dump($message);
@@ -37,7 +39,7 @@ class Notifier implements MessageComponentInterface {
 //            if ($clientChannelId === $channel && $clientPhpSessionId !== $sender) {
             if ($clientChannelId === $channel) {
                 echo sprintf("Send notification to %s\n", $message['sender']);
-                $client->send($msg);
+                $client->send(json_encode($message));
             }
         }
 
