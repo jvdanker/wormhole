@@ -18,5 +18,3 @@ $files = $receiver->receiveFiles($_FILES, $channelId);
 
 $notifier = new ClientNotifier($channelId);
 $notifier->sendNotifications($files);
-
-echo "Ok";

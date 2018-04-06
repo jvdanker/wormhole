@@ -29,6 +29,7 @@ class Notifier implements MessageComponentInterface {
         $sender = $message['sender'];
         var_dump($message);
 
+        $clients = [];
         foreach ($this->clients as $client) {
             $session = $client->session;
             $clientPhpSessionId = $session['PHPSESSID'];
@@ -38,13 +39,14 @@ class Notifier implements MessageComponentInterface {
 
 //            if ($clientChannelId === $channel && $clientPhpSessionId !== $sender) {
             if ($clientChannelId === $channel) {
+                $clients[] = $clientPhpSessionId;
                 echo sprintf("Send notification to %s\n", $message['sender']);
                 $client->send(json_encode($message));
             }
         }
 
         $message = json_encode(array(
-            "status" => "ok",
+            "clients" => $clients
         ));
         $from->send($message);
     }

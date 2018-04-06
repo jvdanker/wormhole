@@ -30,9 +30,9 @@ class StreamReceiver
         //Use ini_get to get the value of
         //the file_uploads directive
         if (ini_get('file_uploads')) {
-            echo 'file_uploads is set to "1". File uploads are allowed.';
+//            echo 'file_uploads is set to "1". File uploads are allowed.';
         } else{
-            echo 'Warning! file_uploads is set to "0". File uploads are NOT allowed.';
+            throw new Exception('File_uploads is set to "0". File uploads are NOT allowed.');
         }
 
         $tempFolder = ini_get('upload_tmp_dir');
@@ -40,20 +40,20 @@ class StreamReceiver
             $tempFolder = sys_get_temp_dir();
         }
 
-        echo 'Your upload_tmp_dir directive has been set to: "' . $tempFolder . '"<br>';
+//        echo 'Your upload_tmp_dir directive has been set to: "' . $tempFolder . '"<br>';
 
         //Firstly, lets make sure that the upload_tmp_dir
         //actually exists.
         if (!is_dir($tempFolder)) {
             throw new Exception($tempFolder . ' does not exist!');
         } else {
-            echo 'The directory "' . $tempFolder . '" does exist.<br>';
+//            echo 'The directory "' . $tempFolder . '" does exist.<br>';
         }
 
         if (!is_writable($tempFolder)){
             throw new Exception($tempFolder . ' is not writable!');
         } else {
-            echo 'The directory "' . $tempFolder . '" is writable. All is good.<br>';
+//            echo 'The directory "' . $tempFolder . '" is writable. All is good.<br>';
         }
 
         //var_dump($_FILES);
@@ -62,11 +62,15 @@ class StreamReceiver
 
     public function receiveFiles($files, $channelId) {
         $result = [];
+
         if (count($files) > 0) {
             foreach($files as $key => $value) {
                 $tmpName = $value['tmp_name'];
                 $newName = sha1_file($tmpName);
                 $uploadName = sprintf('/uploads/%s/%s', $channelId, $newName);
+
+                $value['uploadName'] = $newName;
+                $result[] = $value;
 
                 if (!is_uploaded_file($tmpName)) {
                     rename($tmpName, $uploadName);
