@@ -164,8 +164,8 @@ function startSession(name) {
 //     http.send(JSON.stringify({method:"joinChannel",channelId:id}));
 // }
 
-function downloadFile(evt, filename) {
-    evt.preventDefault();
-
-    console.log(filename);
-}
+// function downloadFile(evt, filename) {
+//     evt.preventDefault();
+//
+//     console.log(filename);
+// }

@@ -30,7 +30,7 @@ class ClientNotifier {
                 $msg = json_decode($msg, true);
                 $clients = $msg['clients'];
 
-                $message['clients'] = $msg['clients'];
+                $message['clients'] = $clients;
                 $fp = fopen("/uploads/session.json", "w");
                 fwrite($fp, json_encode($message));
                 fclose($fp);

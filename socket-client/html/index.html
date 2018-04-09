@@ -148,9 +148,22 @@ ACTIONS:
                 var element = document.getElementById('files');
 
                 data.files.forEach(function(file) {
-                    element.appendChild(document.createElement('div').
-                        appendChild(document.createTextNode(file.filename))
-                    );
+                    var div = document.createElement('div');
+                    div.appendChild(document.createTextNode(file.filename));
+
+                    var a = document.createElement('a');
+                    var linkText = document.createTextNode("accept");
+                    a.appendChild(linkText);
+                    a.title = "accept";
+                    a.href = "#accept";
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        acceptFile(file);
+                    };
+
+                    div.appendChild(a);
+
+                    element.appendChild(div);
                 });
             }
 
@@ -158,6 +171,10 @@ ACTIONS:
                 document.getElementById('handle').value = data.yourName;
             }
         };
+    }
+
+    function acceptFile(file) {
+        console.log('acceptFile', file);
     }
 
     function removeChildren(element) {
