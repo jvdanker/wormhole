@@ -146,6 +146,7 @@ ACTIONS:
 
             if (action === "receiveFiles") {
                 var element = document.getElementById('files');
+                var channel = document.getElementById('channel').value;
 
                 data.files.forEach(function(file) {
                     var div = document.createElement('div');
@@ -158,7 +159,7 @@ ACTIONS:
                     a.href = "#accept";
                     a.onclick = function(e) {
                         e.preventDefault();
-                        acceptFile(file);
+                        acceptFile(channel, file);
                     };
 
                     div.appendChild(a);
@@ -173,8 +174,19 @@ ACTIONS:
         };
     }
 
-    function acceptFile(file) {
-        console.log('acceptFile', file);
+    function acceptFile(channel, file) {
+        console.log('acceptFile', channel, file);
+
+        var http = new Http();
+        var url = '/download/' + channel + '/' + file.filename;
+        console.log('acceptFile', url);
+        http.get(url).then(function (response) {
+            console.log(response);
+            var json = JSON.parse(response);
+            console.log('downloadFile', json);
+        }, function (error) {
+            console.error("downloadfile Failed!", error);
+        });
     }
 
     function removeChildren(element) {

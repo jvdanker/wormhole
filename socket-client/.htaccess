@@ -7,9 +7,9 @@
         RewriteCond %{REQUEST_URI} ^(.+).php$
         RewriteRule ^(.*)$ src/$1 [L]
 
-        RewriteCond %{REQUEST_URI} !^/src/(.+)$
-        RewriteCond %{REQUEST_URI} ^/api/download/(.*)$
-        RewriteRule ^(.*)$ src/download.php?url=$1&%{QUERY_STRING} [L,END]
+        RewriteCond %{REQUEST_URI} !^/src/download.php/(.*)$
+        RewriteCond %{REQUEST_URI} ^/download/(.*)$
+        RewriteRule ^download/(.*)/(.*)$ /src/download.php?channel=$1&file=$2 [L,END]
 
         RewriteCond %{REQUEST_URI} !^/html/(.*)$
         RewriteCond %{REQUEST_URI} !^/src/(.*)$

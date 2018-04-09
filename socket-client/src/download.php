@@ -17,6 +17,9 @@
 @apache_setenv('no-gzip', 1);
 @ini_set('zlib.output_compression', 'Off');
 
+var_dump($_REQUEST);
+die();
+
 if(!isset($_REQUEST['file']) || empty($_REQUEST['file'])) {
     http_response_code(400);
     exit;
