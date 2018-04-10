@@ -158,10 +158,10 @@ ACTIONS:
                     a.appendChild(linkText);
                     a.title = "accept";
                     a.href = "/download/" + channel + "/" + file.filename;
-                    a.onclick = function(e) {
-                        e.preventDefault();
-                        acceptFile(channel, file);
-                    };
+                    // a.onclick = function(e) {
+                    //     e.preventDefault();
+                    //     acceptFile(channel, file);
+                    // };
 
                     div.appendChild(a);
 

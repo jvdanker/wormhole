@@ -33,18 +33,15 @@ if(!isset($_REQUEST['file']) || empty($_REQUEST['file'])) {
 // also, replaces the file location with a preset one ('./myfiles/' in this example)
 $channel    = $_REQUEST['channel'];
 $file_path  = $_REQUEST['file'];
-$path_parts = pathinfo($file_path);
-$file_name  = $path_parts['basename'];
-$file_ext   = $path_parts['extension'];
-$file_path  = './myfiles/' . $file_name;
+$file_name  = '/uploads/' . $channel . '/' . $file_path;
 
 // allow a file to be streamed instead of sent as an attachment
 $is_attachment = isset($_REQUEST['stream']) ? false : true;
 
 // make sure the file exists
-if (is_file($file_path)) {
-    $file_size  = filesize($file_path);
-    $file = @fopen($file_path,"rb");
+if (is_file($file_name)) {
+    $file_size  = filesize($file_name);
+    $file = @fopen($file_name,"rb");
 
     if ($file) {
         // set the headers, prevent caching
@@ -72,7 +69,7 @@ if (is_file($file_path)) {
         );
 
         $ctype = isset($content_types[$file_ext]) ? $content_types[$file_ext] : $ctype_default;
-        header("Content-Type: " . $ctype);
+        header("Content-Type: application/octet-stream");
 
         //check if http_range is sent by browser (or download manager)
         if(isset($_SERVER['HTTP_RANGE'])) {
