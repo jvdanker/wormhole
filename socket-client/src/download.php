@@ -9,6 +9,8 @@
  */
 
 // get the file request, throw error if nothing supplied
+//var_dump($_REQUEST);
+//die();
 
 // hide notices
 @ini_set('error_reporting', E_ALL & ~ E_NOTICE);
@@ -17,8 +19,10 @@
 @apache_setenv('no-gzip', 1);
 @ini_set('zlib.output_compression', 'Off');
 
-var_dump($_REQUEST);
-die();
+if(!isset($_REQUEST['channel']) || empty($_REQUEST['channel'])) {
+    http_response_code(400);
+    exit;
+}
 
 if(!isset($_REQUEST['file']) || empty($_REQUEST['file'])) {
     http_response_code(400);
@@ -27,6 +31,7 @@ if(!isset($_REQUEST['file']) || empty($_REQUEST['file'])) {
 
 // sanitize the file request, keep just the name and extension
 // also, replaces the file location with a preset one ('./myfiles/' in this example)
+$channel    = $_REQUEST['channel'];
 $file_path  = $_REQUEST['file'];
 $path_parts = pathinfo($file_path);
 $file_name  = $path_parts['basename'];

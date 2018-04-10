@@ -112,6 +112,7 @@ ACTIONS:
     startSession().then(openWebsocketConnection);
 
     function openWebsocketConnection() {
+        console.log('openWebsocketConnection');
         var conn = new WebSocket('ws://localhost:8081/channel');
         conn.onopen = function (e) {
             console.log("Connection established!");
@@ -156,7 +157,7 @@ ACTIONS:
                     var linkText = document.createTextNode("accept");
                     a.appendChild(linkText);
                     a.title = "accept";
-                    a.href = "#accept";
+                    a.href = "/download/" + channel + "/" + file.filename;
                     a.onclick = function(e) {
                         e.preventDefault();
                         acceptFile(channel, file);
