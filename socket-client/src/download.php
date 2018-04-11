@@ -69,7 +69,7 @@ if (is_file($file_name)) {
         );
 
         $ctype = isset($content_types[$file_ext]) ? $content_types[$file_ext] : $ctype_default;
-        header("Content-Type: application/octet-stream");
+        header("Content-Type: " . $ctype);
 
         //check if http_range is sent by browser (or download manager)
         if(isset($_SERVER['HTTP_RANGE'])) {
