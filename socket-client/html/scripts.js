@@ -86,31 +86,6 @@ function resetFiles() {
     window.location.reload();
 }
 
-// function getFileList(channelId, timestamp) {
-//     var http = new XMLHttpRequest();
-//     http.open("POST", "api.php", true);
-//     http.setRequestHeader("Content-type", "application/json");
-//
-//     if (timestamp === undefined) {
-//         timestamp = Math.floor((new Date).getTime()/1000);
-//     }
-//
-//     return new Promise(function (resolve, reject) {
-//         http.onreadystatechange = function() {
-//             if (this.readyState == 4 && this.status == 200) {
-//                 var json = JSON.parse(this.response);
-//                 resolve(json);
-//             }
-//         };
-//
-//         http.send(JSON.stringify({
-//             method:"getFileList",
-//             channelId: channelId,
-//             time: timestamp
-//         }));
-//     });
-// }
-
 function startSession(name) {
     return new Promise(function(resolve, reject) {
         var http = new Http();
@@ -128,44 +103,103 @@ function startSession(name) {
     });
 }
 
-// function startSession(name, callback) {
-//     var http = new XMLHttpRequest();
-//     http.open("POST", "api.php", true);
-//     http.setRequestHeader("Content-type", "application/json");
-//
-//     http.onreadystatechange = function() {
-//         if (this.readyState == 4 && this.status == 200) {
-//             console.log('startSession: ', this.response);
-//
-//             var json = JSON.parse(this.response);
-//             console.log('startSession', json);
-//
-//             if (callback) {
-//                 callback(json);
-//             }
-//         }
-//     };
-//
-//     http.send(JSON.stringify({method:"startSession",name:name}));
-// }
+function setChannel() {
+    let channel = document.getElementById('channel').value;
+    conn.send(JSON.stringify({
+        command: "joinChannel",
+        channel: channel
+    }));
+}
 
-// function joinChannel(id) {
-//     var http = new XMLHttpRequest();
-//     http.open("POST", "api.php", true);
-//     http.setRequestHeader("Content-type", "application/json");
-//
-//     http.onreadystatechange = function() {
-//         if (this.readyState == 4 && this.status == 200) {
-//             var json = JSON.parse(this.response);
-//             console.log('joinChannel', json);
-//         }
-//     };
-//
-//     http.send(JSON.stringify({method:"joinChannel",channelId:id}));
-// }
+function setHandle() {
+    let name = document.getElementById('handle').value;
+    conn.send(JSON.stringify({
+        command: "name",
+        name: name
+    }));
+}
 
-// function downloadFile(evt, filename) {
-//     evt.preventDefault();
-//
-//     console.log(filename);
-// }
+function openWebsocketConnection() {
+    console.log('openWebsocketConnection');
+    let conn = new WebSocket('ws://localhost:8081/channel');
+
+    conn.onopen = function () {
+        console.log("Connection established!");
+        console.log(getCookie('PHPSESSID'));
+    };
+
+    conn.onmessage = function (e) {
+        let data = JSON.parse(e.data);
+        console.log("onMessage: ", data);
+
+        let action = data.action;
+
+        if (action === "joinChannel") {
+            let channelElement = document.getElementById('currentChannel');
+            removeChildren(channelElement);
+
+            let newText = document.createTextNode(data.channel);
+            channelElement.appendChild(newText);
+
+            document.getElementById('channel').value = data.channel;
+
+            let element = document.getElementById('members');
+            removeChildren(element);
+
+            data.members.forEach(function(member) {
+                let span = document.createElement('div')
+                let text = document.createTextNode(member.name);
+                span.appendChild(text);
+                element.appendChild(span);
+            });
+        }
+
+        if (action === "receiveFiles") {
+            let element = document.getElementById('files');
+
+            data.files.forEach(function(file) {
+                let div = document.createElement('div');
+                div.appendChild(document.createTextNode(file.filename));
+
+                let a = document.createElement('a');
+                let linkText = document.createTextNode("accept");
+                a.appendChild(linkText);
+                a.title = "accept";
+                a.href = "/download/" + data.transferSessionId + "/" + file.uploadName;
+                // a.onclick = function(e) {
+                //     e.preventDefault();
+                //     acceptFile(channel, file);
+                // };
+
+                div.appendChild(a);
+
+                element.appendChild(div);
+            });
+        }
+
+        if (data.yourName) {
+            document.getElementById('handle').value = data.yourName;
+        }
+    };
+}
+
+function acceptFile(channel, file) {
+    console.log('acceptFile', channel, file);
+
+    let http = new Http();
+    let url = '/download/' + channel + '/' + file.filename;
+    console.log('acceptFile', url);
+    http.get(url).then(function (response) {
+        console.log(response);
+        let json = JSON.parse(response);
+        console.log('downloadFile', json);
+    }, function (error) {
+        console.error("downloadfile Failed!", error);
+    });
+}
+
+function removeChildren(element) {
+    while(element.childNodes.length >= 1) {
+        element.removeChild(element.firstChild);
+    }
+}
