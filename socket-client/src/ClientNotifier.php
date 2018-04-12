@@ -4,8 +4,10 @@ namespace MyApp;
 
 class ClientNotifier {
     protected $channelId;
+    protected $transferSessionId;
 
-    public function __construct($channelId) {
+    public function __construct($transferSessionId, $channelId) {
+        $this->transferSessionId = $transferSessionId;
         $this->channelId = $channelId;
     }
 
@@ -13,12 +15,14 @@ class ClientNotifier {
         $filenames = [];
         foreach ($files as $file) {
             $filenames[] = array(
-                'filename' => $file['uploadName'],
+                'uploadName' => $file['uploadName'],
+                'filename' => $file['name'],
                 'size' => $file['size']
             );
         }
 
         $message = [
+            "transferSessionId" => $this->transferSessionId,
             "channel" => $this->channelId,
             "sender" => session_id(),
             "files" => $filenames
@@ -31,7 +35,9 @@ class ClientNotifier {
                 $clients = $msg['clients'];
 
                 $message['clients'] = $clients;
-                $fp = fopen("/uploads/session.json", "w");
+                $fp = fopen(
+                    sprintf("/uploads/%s/session.json",$this->transferSessionId),
+                    "w");
                 fwrite($fp, json_encode($message));
                 fclose($fp);
             });

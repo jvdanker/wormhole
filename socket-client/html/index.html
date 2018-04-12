@@ -157,7 +157,7 @@ ACTIONS:
                     var linkText = document.createTextNode("accept");
                     a.appendChild(linkText);
                     a.title = "accept";
-                    a.href = "/download/" + channel + "/" + file.filename;
+                    a.href = "/download/" + data.transferSessionId + "/" + file.uploadName;
                     // a.onclick = function(e) {
                     //     e.preventDefault();
                     //     acceptFile(channel, file);

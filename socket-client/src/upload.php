@@ -12,9 +12,10 @@ session_start();
 header('Content-Type: text/plain; charset=utf-8');
 
 $channelId = $_REQUEST['channelId'];
+$transferSessionId = uniqid("", true);;
 
-$receiver = new StreamReceiver($channelId);
-$files = $receiver->receiveFiles($_FILES, $channelId);
+$receiver = new StreamReceiver($transferSessionId);
+$files = $receiver->receiveFiles($_FILES);
 
-$notifier = new ClientNotifier($channelId);
+$notifier = new ClientNotifier($transferSessionId, $channelId);
 $notifier->sendNotifications($files);

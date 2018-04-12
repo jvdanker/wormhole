@@ -4,22 +4,22 @@ namespace MyApp;
 
 class StreamReceiver
 {
-    protected $channelId;
+    protected $transferSessionId;
 
-    public function __construct($channelId) {
-        $this->channelId = $channelId;
+    public function __construct($transferSessionId) {
+        $this->transferSessionId = $transferSessionId;
 
         $this->prepareUpload();
     }
 
     private function prepareUpload() {
-        if (empty($this->channelId)) {
+        if (empty($this->transferSessionId)) {
             http_response_code(403);
             return;
         }
 
-        if (!is_dir('/uploads/' . $this->channelId)) {
-            mkdir('/uploads/' . $this->channelId);
+        if (!is_dir('/uploads/' . $this->transferSessionId)) {
+            mkdir('/uploads/' . $this->transferSessionId);
         }
 
         $uploads = '/uploads';
@@ -60,14 +60,17 @@ class StreamReceiver
         //var_dump($_PUT);
     }
 
-    public function receiveFiles($files, $channelId) {
+    public function receiveFiles($files) {
         $result = [];
 
         if (count($files) > 0) {
             foreach($files as $key => $value) {
                 $tmpName = $value['tmp_name'];
                 $newName = sha1_file($tmpName);
-                $uploadName = sprintf('/uploads/%s/%s', $channelId, $newName);
+                $uploadName = sprintf(
+                    '/uploads/%s/%s',
+                    $this->transferSessionId,
+                    $newName);
 
                 $value['uploadName'] = $newName;
                 $result[] = $value;
