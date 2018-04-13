@@ -34,6 +34,7 @@ if(!isset($_REQUEST['file']) || empty($_REQUEST['file'])) {
 $channel    = $_REQUEST['channel'];
 $file_path  = $_REQUEST['file'];
 $file_name  = '/uploads/' . $channel . '/' . $file_path;
+$transferSessionId = $channel;
 
 // allow a file to be streamed instead of sent as an attachment
 $is_attachment = isset($_REQUEST['stream']) ? false : true;
@@ -104,24 +105,55 @@ if (is_file($file_name)) {
             header("Content-Length: $file_size");
         }
 
+        // fetch manifest
+        $fp = fopen(
+            sprintf("/uploads/%s/session.json", $transferSessionId),
+            "r");
+        $manifest = json_decode(fgets($fp), true);
+        fclose($fp);
+
+
+        $manifestFile = getManifestFile($manifest, $file_path);
+
         header('Accept-Ranges: bytes');
+        header(sprintf('Content-Disposition: attachment; filename="%s"', $manifestFile['filename']));
 
         set_time_limit(0);
         fseek($file, $seek_start);
 
-        while (!feof($file)) {
-            print(@fread($file, 1024*8));
-            ob_flush();
-            flush();
-
-            if (connection_status() != 0) {
-                @fclose($file);
-                exit;
-            }
-        }
+//        while (!feof($file)) {
+//            print(@fread($file, 1024*8));
+//            ob_flush();
+//            flush();
+//
+//            if (connection_status() != 0) {
+//                @fclose($file);
+//                exit;
+//            }
+//        }
 
         // file save was a success
         @fclose($file);
+
+        // update manifest
+        session_start();
+        foreach ($manifest['files'] as &$file) {
+            if ($file['uploadName'] === $file_path) {
+
+                // update manifest
+                if (!isset($file['downloadedBy'])) {
+                    $file['downloadedBy'] = [];
+                }
+
+                $file['downloadedBy'][] = session_id();
+                $file['downloadedBy'] = array_unique($file['downloadedBy']);
+            }
+        }
+
+        $fp = fopen(sprintf("/uploads/%s/session.json", $transferSessionId), "w");
+        fwrite($fp, json_encode($manifest));
+        fclose($fp);
+
         exit;
 
     } else {
@@ -132,5 +164,16 @@ if (is_file($file_name)) {
 } else {
     // file does not exist
     header("HTTP/1.0 404 Not Found");
+    exit;
+}
+
+function getManifestFile($manifest, $filename) {
+    foreach ($manifest['files'] as $file) {
+        if ($file['uploadName'] === $filename) {
+            return $file;
+        }
+    }
+
+    header("HTTP/1.0 500 Internal Server Error");
     exit;
 }
