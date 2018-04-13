@@ -157,6 +157,11 @@ function openWebsocketConnection() {
         if (action === "receiveFiles") {
             let element = document.getElementById('files');
 
+            let session = document.createElement('div');
+            let h2 = document.createElement('h2');
+            h2.appendChild(document.createTextNode(data.transferSessionId));
+            session.appendChild(h2);
+
             data.files.forEach(function(file) {
                 let div = document.createElement('div');
                 div.appendChild(document.createTextNode(file.filename));
