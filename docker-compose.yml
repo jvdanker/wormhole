@@ -22,5 +22,8 @@ services:
       - type: bind
         source: ./socket-client
         target: /var/www/html
+      - type: bind
+        source: ./xdebug.ini
+        target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     ports:
       - "8080:80"

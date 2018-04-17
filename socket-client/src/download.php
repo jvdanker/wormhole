@@ -150,9 +150,45 @@ if (is_file($file_name)) {
             }
         }
 
-        $fp = fopen(sprintf("/uploads/%s/session.json", $transferSessionId), "w");
-        fwrite($fp, json_encode($manifest));
-        fclose($fp);
+        // todo send update to clients
+
+        // prune completed sessions
+        $files = [];
+        $completedFiles = [];
+        foreach ($manifest['files'] as &$file) {
+            if (!isset($file['downloadedBy'])) {
+                $file['downloadedBy'] = [];
+            }
+
+            $diff = array_diff($manifest['clients'], $file['downloadedBy']);
+            if (empty($diff)) {
+                $completedFiles[] = $file;
+            } else {
+                $files[] = $file;
+            }
+        }
+
+        $manifestFilename = sprintf("/uploads/%s/session.json", $transferSessionId);
+        if (empty($files)) {
+            // every file has been downloaded, remove the manifest and close the transfer session
+            unlink($manifestFilename);
+
+            // remove downloaded files
+            foreach ($completedFiles as $file) {
+                unlink(sprintf("/uploads/%s/%s", $transferSessionId, $file['uploadName']));
+            }
+
+            // remove directory
+            rmdir(sprintf("/uploads/%s", $transferSessionId));
+
+        } else {
+            $manifest['files'] = $files;
+
+            // update manifest
+            $fp = fopen($manifestFilename, "w");
+            fwrite($fp, json_encode($manifest));
+            fclose($fp);
+        }
 
         exit;
 

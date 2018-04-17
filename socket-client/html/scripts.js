@@ -159,8 +159,9 @@ function openWebsocketConnection() {
 
             let session = document.createElement('div');
             let h2 = document.createElement('h2');
-            h2.appendChild(document.createTextNode(data.transferSessionId));
+            h2.appendChild(document.createTextNode('Session: ' + data.transferSessionId));
             session.appendChild(h2);
+            element.appendChild(session);
 
             data.files.forEach(function(file) {
                 let div = document.createElement('div');
